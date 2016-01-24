@@ -59,6 +59,9 @@ func main() {
 	case "build":
 		setupDeps()
 		buildBinaries()
+	case "build-single":
+		setupPecoInGopath()
+		buildSingleBinary()
 	default:
 		panic("Unknown action: " + action)
 	}
@@ -199,6 +202,17 @@ func buildBinaryFor(osname, arch string) {
 
 	os.RemoveAll(name)
 	run("mv", file, filepath.Join(getBuildDir(), "artifacts"))
+}
+
+func buildSingleBinary() {
+	buildDir := getBuildDir()
+	var goPath = fmt.Sprintf("%s:%s", buildDir, os.Getenv("GOPATH"))
+	os.Setenv("GOPATH", goPath)
+
+	run("go", "build", "-o",
+		filepath.Join("peco", "peco"),
+		filepath.Join("cmd", "peco", "peco.go"),
+	)
 }
 
 func run(name string, args ...string) error {
